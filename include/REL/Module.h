@@ -7,8 +7,14 @@
 
 #include "REX/REX/Singleton.h"
 
+#ifndef COMMONLIB_RUNTIMECOUNT
+#	define COMMONLIB_RUNTIMECOUNT 1
+#endif
+
 namespace REL
 {
+	extern [[nodiscard]] std::size_t GetRuntimeIndex() noexcept;
+
 	class Module :
 		public REX::Singleton<Module>
 	{

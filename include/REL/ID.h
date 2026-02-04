@@ -29,7 +29,7 @@ namespace REL
 				return;
 			}
 
-			size_t i = 0;
+			std::size_t i = 0;
 			std::uint64_t lastValue = 0;
 
 			for (auto val : a_list)

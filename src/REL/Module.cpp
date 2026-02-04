@@ -4,35 +4,27 @@
 #include "REX/REX/LOG.h"
 #include "REX/W32/KERNEL32.h"
 
-#include <F4SE\Version.h>
-
 namespace REL
 {
-	constexpr static auto OG_LATEST_VERSION = F4SE::RUNTIME_1_10_163;
-	constexpr static auto NG_LATEST_VERSION = F4SE::RUNTIME_1_10_984;
+	constexpr inline static REL::Version OG_LATEST_VERSION = { 1, 10, 163, 0 };
+	constexpr inline static REL::Version NG_LATEST_VERSION = { 1, 10, 984, 0 };
 
 	static REL::Version safe_verm{ 0, 0, 0, 0 };
 
-	[[nodiscard]] std::size_t GetRuntimeIndex() noexcept
+	[[nodiscard]] Module::Runtime Module::GetRuntimeIndex() noexcept
 	{
-		if (safe_verm.major() == 0) {
+		if (safe_verm.major() == 0)
 			safe_verm = REL::Module::GetSingleton()->version();
-		}
-
-		if (safe_verm == OG_LATEST_VERSION) {
-			return 0;
-		}
-
-		if ((safe_verm > OG_LATEST_VERSION) && (safe_verm <= NG_LATEST_VERSION)) {
-			return 1;
-		}
-
-		if (safe_verm > NG_LATEST_VERSION) {
-			return 2;
-		}
+	
+		if (safe_verm == OG_LATEST_VERSION)
+			return Runtime::kOG;
+		if ((safe_verm > OG_LATEST_VERSION) && (safe_verm <= NG_LATEST_VERSION))
+			return Runtime::kNG;
+		if (safe_verm > NG_LATEST_VERSION)
+			return Runtime::kAE;
 
 		// Default to AE
-		return 2;
+		return Runtime::kAE;
 	}
 
 	Module::Module() :

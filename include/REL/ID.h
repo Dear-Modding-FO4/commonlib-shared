@@ -66,12 +66,10 @@ namespace REL
 
 		[[nodiscard]] std::uint64_t id() const noexcept
 		{
-			std::size_t index = GetRuntimeIndex();
+			auto index = static_cast<std::uint8_t>(Module::GetRuntimeIndex());
 
 			if (index >= COMMONLIB_RUNTIMECOUNT)
-			{
 				index = COMMONLIB_RUNTIMECOUNT - 1;
-			}
 
 			return m_ids[index];
 		}

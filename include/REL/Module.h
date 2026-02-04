@@ -13,12 +13,17 @@
 
 namespace REL
 {
-	extern [[nodiscard]] std::size_t GetRuntimeIndex() noexcept;
-
 	class Module :
 		public REX::Singleton<Module>
 	{
 	public:
+		enum class Runtime : std::uint8_t
+		{
+			kOG = 0,
+			kNG,
+			kAE
+		};
+
 		Module();
 
 		[[nodiscard]] constexpr std::uintptr_t base() const noexcept { return _base; }
@@ -34,6 +39,12 @@ namespace REL
 		{
 			_version = a_version;
 		}
+
+		[[nodiscard]] static Runtime GetRuntimeIndex() noexcept;
+
+		[[nodiscard]] inline static bool IsRuntimeOG() noexcept { return GetRuntimeIndex() == Runtime::kOG; }
+		[[nodiscard]] inline static bool IsRuntimeNG() noexcept { return GetRuntimeIndex() == Runtime::kNG; }
+		[[nodiscard]] inline static bool IsRuntimeAE() noexcept { return GetRuntimeIndex() == Runtime::kAE; }
 
 		[[nodiscard]] void* pointer() const noexcept { return reinterpret_cast<void*>(base()); }
 

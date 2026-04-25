@@ -1,8 +1,6 @@
 #pragma once
 
-#include "REX/BASE.h"
-
-#include "REL/Module.h"
+#include "REX/FModule.h"
 
 namespace REL
 {
@@ -15,7 +13,7 @@ namespace REL
 
 		explicit constexpr Offset(std::size_t a_offset) noexcept
 		{
-			for (auto& offset : _offsets)
+			for (auto& offset : m_offsets)
 			{
 				offset = a_offset;
 			}
@@ -38,19 +36,19 @@ namespace REL
 					break;
 				}
 
-				_offsets[i++] = val;
+				m_offsets[i++] = val;
 				lastValue = val;
 			}
 
 			while (i < COMMONLIB_RUNTIMECOUNT)
 			{
-				_offsets[i++] = lastValue;
+				m_offsets[i++] = lastValue;
 			}
 		}
 
 		constexpr Offset& operator=(std::size_t a_offset) noexcept
 		{
-			for (auto& offset : _offsets)
+			for (auto& offset : m_offsets)
 			{
 				offset = a_offset;
 			}
@@ -59,21 +57,21 @@ namespace REL
 
 		[[nodiscard]] std::uintptr_t address() const
 		{
-			const auto mod = Module::GetSingleton();
-			return mod->base() + offset();
+			const auto mod = REX::FModule::GetExecutingModule();
+			return mod.GetBaseAddress() + offset();
 		}
 
 		[[nodiscard]] std::size_t offset() const noexcept
 		{
-			auto index = static_cast<std::uint8_t>(Module::GetRuntimeIndex());
+			auto index = static_cast<std::uint8_t>(REX::FModule::GetRuntimeIndex());
 
 			if (index >= COMMONLIB_RUNTIMECOUNT)
 				index = COMMONLIB_RUNTIMECOUNT - 1;
 
-			return _offsets[index];
+			return m_offsets[index];
 		}
 
 	private:
-		std::size_t _offsets[COMMONLIB_RUNTIMECOUNT]{ 0 };
+		std::size_t m_offsets[COMMONLIB_RUNTIMECOUNT]{ 0 };
 	};
 }

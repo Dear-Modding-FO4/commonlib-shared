@@ -1,9 +1,8 @@
 #pragma once
 
-#include "REX/BASE.h"
+#include "REX/FModule.h"
 
 #include "REL/IDDB.h"
-#include "REL/Module.h"
 
 namespace REL
 {
@@ -60,13 +59,13 @@ namespace REL
 
 		[[nodiscard]] std::uintptr_t address() const
 		{
-			const auto mod = Module::GetSingleton();
-			return mod->base() + offset();
+			const auto mod = REX::FModule::GetExecutingModule();
+			return mod.GetBaseAddress() + offset();
 		}
 
 		[[nodiscard]] std::uint64_t id() const noexcept
 		{
-			auto index = static_cast<std::uint8_t>(Module::GetRuntimeIndex());
+			auto index = static_cast<std::uint8_t>(REX::FModule::GetRuntimeIndex());
 
 			if (index >= COMMONLIB_RUNTIMECOUNT)
 				index = COMMONLIB_RUNTIMECOUNT - 1;

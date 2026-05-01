@@ -68,7 +68,7 @@ namespace REL
 				m_offs[i] = item.offset();
 				last = m_offs[i++];
 			} else if (std::is_integral_v<T>) {
-				m_offs[i] = REL::ID{ *(uint64_t*)&item }.offset();
+				m_offs[i] = REL::ID{ (uint64_t)item }.offset();
 				last = m_offs[i++];
 			}
 		}

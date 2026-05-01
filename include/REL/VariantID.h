@@ -74,7 +74,11 @@ namespace REL
 			if (index >= COMMONLIB_RUNTIMECOUNT)
 				index = COMMONLIB_RUNTIMECOUNT - 1;
 
-			return (m_offs[index].method == Variant::Method::kOffset) ? m_offs[index].value : REL::ID{ m_offs[index].value }.offset();
+			if (m_offs[index].method == Variant::Method::kOffset)
+				return m_offs[index].value;
+
+			const auto iddb = IDDB::GetSingleton();
+			return iddb->offset(m_offs[index].value);
 		}
 	private:
 		template <typename T>

@@ -61,11 +61,11 @@ namespace REL
 		template <typename T>
 		void inserter(std::size_t& i, std::uint64_t& last, T item) noexcept
 		{
-			if (std::is_same_v<T, REL::ID>) {
-				m_offs[i] = ((REL::ID*)&item)->offset();
+			if constexpr (std::is_same_v<T, REL::ID>) {
+				m_offs[i] = item.offset();
 				last = m_offs[i++];
-			} else if (std::is_same_v<T, REL::Offset>) {
-				m_offs[i] = ((REL::Offset*)&item)->offset();
+			} else if constexpr (std::is_same_v<T, REL::Offset>) {
+				m_offs[i] = item.offset();
 				last = m_offs[i++];
 			} else if (std::is_integral_v<T>) {
 				m_offs[i] = REL::ID{ *(uint64_t*)&item }.offset();

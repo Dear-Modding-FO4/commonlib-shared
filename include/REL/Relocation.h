@@ -5,6 +5,7 @@
 #include "REL/ASM.h"
 #include "REL/ID.h"
 #include "REL/Offset.h"
+#include "REL/VariantID.h"
 #include "REL/Trampoline.h"
 #include "REL/Utility.h"
 
@@ -204,6 +205,10 @@ namespace REL
 			_impl{ a_address }
 		{}
 
+		explicit Relocation(VariantID a_variant) :
+			_impl{ a_variant.address() }
+		{}
+
 		explicit Relocation(Offset a_offset) :
 			_impl{ a_offset.address() }
 		{}
@@ -218,6 +223,14 @@ namespace REL
 
 		explicit Relocation(ID a_id, Offset a_offset) :
 			_impl{ a_id.address() + a_offset.offset() }
+		{}
+
+		explicit Relocation(VariantID a_variant, std::ptrdiff_t a_offset) :
+			_impl{ a_variant.address() + a_offset }
+		{}
+
+		explicit Relocation(VariantID a_variant, Offset a_offset) :
+			_impl{ a_variant.address() + a_offset.offset() }
 		{}
 
 		constexpr Relocation& operator=(std::uintptr_t a_address) noexcept
@@ -235,6 +248,12 @@ namespace REL
 		Relocation& operator=(ID a_id)
 		{
 			_impl = a_id.address();
+			return *this;
+		}
+
+		Relocation& operator=(VariantID a_variant)
+		{
+			_impl = a_variant.address();
 			return *this;
 		}
 

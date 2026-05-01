@@ -1,13 +1,13 @@
 #pragma once
 
 #include "REX/FModule.h"
-
 #include "REL/IDDB.h"
 
 namespace REL
 {
 	class ID
 	{
+		friend class VariantID;
 	public:
 		static_assert(COMMONLIB_RUNTIMECOUNT > 0, "COMMONLIB_RUNTIMECOUNT must be at least 1.");
 

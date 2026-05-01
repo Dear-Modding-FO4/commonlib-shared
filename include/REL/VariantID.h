@@ -9,13 +9,32 @@ namespace REL
 	{
 		static_assert(COMMONLIB_RUNTIMECOUNT > 0, "COMMONLIB_RUNTIMECOUNT must be at least 1.");
 
+		struct Variant
+		{
+			enum class Method : std::uint8_t
+			{
+				kOffset = 0,
+				kID
+			};
+
+			Method        method{ Method::kID };
+			std::uint64_t value{ 0 };
+
+			constexpr Variant& operator=(const Variant& a_variant) noexcept
+			{
+				method = a_variant.method;
+				value = a_variant.value;
+
+				return *this;
+			}
+		};
 	public:
 		constexpr VariantID() noexcept = default;
 
 		explicit constexpr VariantID(std::uint64_t a_id) noexcept
 		{
-			for (auto& id : m_offs)
-				id = a_id;
+			for (auto& off : m_offs)
+				off = { Variant::Method::kID, a_id };
 		}
 
 		template <typename... Args>
@@ -25,8 +44,8 @@ namespace REL
 			if (!size)
 				return;
 
-			std::size_t   i = 0;
-			std::uint64_t lastValue = 0;
+			std::size_t	i = 0;
+			Variant     lastValue;
 
 			inserter(i, lastValue, std::forward<Args>(args)...);
 
@@ -36,8 +55,9 @@ namespace REL
 
 		constexpr VariantID& operator=(std::uint64_t a_id) noexcept
 		{
-			for (auto& id : m_offs)
-				id = a_id;
+			for (auto& off : m_offs)
+				off = { Variant::Method::kID, a_id };
+
 			return *this;
 		}
 
@@ -54,32 +74,34 @@ namespace REL
 			if (index >= COMMONLIB_RUNTIMECOUNT)
 				index = COMMONLIB_RUNTIMECOUNT - 1;
 
-			return m_offs[index];
+			return (m_offs[index].method == Variant::Method::kOffset) ? m_offs[index].value : REL::ID{ m_offs[index].value }.offset();
 		}
-
 	private:
 		template <typename T>
-		void inserter(std::size_t& i, std::uint64_t& last, T item) noexcept
+		constexpr void inserter(std::size_t& i, Variant& last, T item) noexcept
 		{
-			if constexpr (std::is_same_v<T, REL::ID>) {
-				m_offs[i] = item.offset();
+			if constexpr (std::is_same_v<T, REL::ID>)
+			{
+				m_offs[i] = { Variant::Method::kID, item.m_ids[0] };
 				last = m_offs[i++];
-			} else if constexpr (std::is_same_v<T, REL::Offset>) {
-				m_offs[i] = item.offset();
+			} else if constexpr (std::is_same_v<T, REL::Offset>)
+			{
+				m_offs[i] = { Variant::Method::kOffset, item.m_offsets[0] };
 				last = m_offs[i++];
-			} else if (std::is_integral_v<T>) {
-				m_offs[i] = REL::ID{ (uint64_t)item }.offset();
+			} else if (std::is_integral_v<T>)
+			{
+				m_offs[i] = { Variant::Method::kID, (const std::uint64_t)item };
 				last = m_offs[i++];
 			}
 		}
 
 		template <typename T, typename... Args>
-		void inserter(std::size_t& i, std::uint64_t& last, T item, Args... args) noexcept
+		constexpr void inserter(std::size_t& i, Variant& last, T item, Args... args) noexcept
 		{
 			inserter(i, last, item);
 			inserter(i, last, args...);
 		}
 
-		std::uint64_t m_offs[COMMONLIB_RUNTIMECOUNT]{ 0 };
+		Variant m_offs[COMMONLIB_RUNTIMECOUNT]{};
 	};
 }

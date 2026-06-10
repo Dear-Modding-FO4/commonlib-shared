@@ -7,7 +7,7 @@
 #include "REX/W32/BASE.h"
 
 #ifndef COMMONLIB_RUNTIMECOUNT
-#	define COMMONLIB_RUNTIMECOUNT 1
+#	define COMMONLIB_RUNTIMECOUNT 3
 #endif
 
 namespace REX

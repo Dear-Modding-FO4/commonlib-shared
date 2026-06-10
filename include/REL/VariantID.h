@@ -85,7 +85,7 @@ namespace REL
 		constexpr void inserter(std::size_t& i, Variant& last, T item) noexcept
 		{
 			if (i >= COMMONLIB_RUNTIMECOUNT)
-				break;
+				return;
 
 			if constexpr (std::is_same_v<T, REL::ID>)
 			{

@@ -84,6 +84,9 @@ namespace REL
 		template <typename T>
 		constexpr void inserter(std::size_t& i, Variant& last, T item) noexcept
 		{
+			if (i >= COMMONLIB_RUNTIMECOUNT)
+				break;
+
 			if constexpr (std::is_same_v<T, REL::ID>)
 			{
 				m_offs[i] = { Variant::Method::kID, item.m_ids[0] };

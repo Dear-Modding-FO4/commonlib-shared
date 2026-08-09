@@ -398,7 +398,7 @@ namespace REL
                     return a_lhs.id < a_rhs.id;
                 });
 
-			if (it == m_v0.end()) {
+			if (it == m_v0.end() || it->id != a_id) {
 				REX::FAIL(
 					"Failed to find offset for Address Library ID!\n"
 					"Invalid ID: {}\n"
@@ -411,6 +411,14 @@ namespace REL
 
 		if (m_v5.empty())
 			REX::FAIL("No Address Library has been loaded!");
+
+		if (a_id >= m_v5.size()) {
+			REX::FAIL(
+				"Failed to find offset for Address Library ID!\n"
+				"Invalid ID: {}\n"
+				"Game Version: {}",
+				a_id, mod.GetFileVersion().string());
+		}
 
 		const auto offset = static_cast<std::uint64_t>(m_v5[a_id]);
 		if (!offset) {

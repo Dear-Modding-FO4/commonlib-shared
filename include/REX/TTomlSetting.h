@@ -106,6 +106,12 @@ namespace REX::TOML
 
 	template <class S = FTomlSettingStore>
 	using Str = TTomlSetting<std::string, S>;
+
+	template <class T, class S = FTomlSettingStore>
+	using SettingA = TTomlSetting<std::vector<T>, S>;
+
+	template <class S = FTomlSettingStore>
+	using StrA = SettingA<std::string, S>;
 }
 
 #endif

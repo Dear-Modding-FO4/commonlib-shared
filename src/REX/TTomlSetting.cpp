@@ -117,6 +117,12 @@ namespace REX::Impl
 		TomlSettingLoadEx<std::string>(a_data, a_section, a_key, a_value, a_valueDefault);
 	}
 
+	template <>
+	void TomlSettingLoad<std::vector<std::string>>(void* a_data, std::vector<std::string> a_section, std::string_view a_key, std::vector<std::string>& a_value, std::vector<std::string>& a_valueDefault)
+	{
+		TomlSettingLoadEx<std::vector<std::string>>(a_data, a_section, a_key, a_value, a_valueDefault);
+	}
+
 	template <class T>
 	void TomlSettingSaveEx(void* a_data, std::vector<std::string> a_section, std::string_view a_key, T& a_value)
 	{
@@ -194,6 +200,12 @@ namespace REX::Impl
 	void TomlSettingSave<std::string>(void* a_data, std::vector<std::string> a_section, std::string_view a_key, std::string& a_value)
 	{
 		TomlSettingSaveEx<std::string>(a_data, a_section, a_key, a_value);
+	}
+
+	template <>
+	void TomlSettingSave<std::vector<std::string>>(void* a_data, std::vector<std::string> a_section, std::string_view a_key, std::vector<std::string>& a_value)
+	{
+		TomlSettingSaveEx<std::vector<std::string>>(a_data, a_section, a_key, a_value);
 	}
 }
 #endif

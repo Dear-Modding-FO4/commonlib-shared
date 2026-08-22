@@ -362,7 +362,8 @@ namespace REL
 			{ Loader::SKSE, {} },
 			{ Loader::F4SE, { 
 				{ REL::Version{ 1, 10, 980 }, "2AD60B95388F1B6E77A6F86F17BEB51D043CF95A341E91ECB2E911A393E45FE8156D585D2562F7B14434483D6E6652E2373B91589013507CABAE596C26A343F1"sv },
-				{ REL::Version{ 1, 11, 159 }, "686D40387F638ED75AD43BB76CA14170576F1A30E91144F280987D13A3012B1CA6A4E04E6BE7A5B99E46C50332C49BE40C3D9448038E17D3D31C40E72A90AE26"sv }
+				{ REL::Version{ 1, 11, 159 }, "686D40387F638ED75AD43BB76CA14170576F1A30E91144F280987D13A3012B1CA6A4E04E6BE7A5B99E46C50332C49BE40C3D9448038E17D3D31C40E72A90AE26"sv },
+				{ REL::Version{ 1, 11, 240 }, "8555E8A9A9703DB15E1FB5796EB2303B53EDEA22681BCDAA46DE2007319374CF256875D0901D5C803F41720C60EC692CF9ADFE8B6F378C9D097DDB35190204A9"sv },
 			} },
 			{ Loader::SFSE, {} },
 			{ Loader::OBSE, {} },
@@ -374,7 +375,7 @@ namespace REL
 		for (auto& check : g_blacklistMap[m_loader]) {
 			if (modVersion == check.first) {
 				auto sha = REX::SHA512({ m_mmap.data(), m_mmap.size() });
-				if (!sha)
+				if (!sha.has_value())
 					REX::FAIL("Failed to hash Address Library file!\nPath: {}", m_path.string());
 				if (*sha == check.second)
 					REX::FAIL("Invalid Address Library loaded!\n\nRedownload Address Library for your game version.\nGame Version: {}", modVersion.string());

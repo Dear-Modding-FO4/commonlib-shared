@@ -88,6 +88,8 @@ namespace REX::W32
 
 	using UUID = GUID;
 	using IID = GUID;
+	using CLSID = GUID;
+	using REFIID = const IID&;
 }
 
 namespace REX::W32
@@ -185,6 +187,37 @@ namespace REX::W32
 	};
 	static_assert(sizeof(UNICODE_STRING) == 0x10);
 }
+
+#pragma pack(push, 1)
+
+namespace REX::W32
+{
+	struct WAVEFORMATEX
+	{
+		std::uint16_t formatTag;
+		std::uint16_t channels;
+		std::uint32_t samplesPerSec;
+		std::uint32_t avgBytesPerSec;
+		std::uint16_t blockAlign;
+		std::uint16_t bitsPerSample;
+		std::uint16_t size;
+	};
+
+	struct WAVEFORMATEXTENSIBLE
+	{
+		WAVEFORMATEX format;
+		union
+		{
+			std::uint16_t validBitsPerSample;
+			std::uint16_t samplesPerBlock;
+			std::uint16_t reserved;
+		} samples;
+		std::uint32_t channelMask;
+		GUID          subFormat;
+	};
+}
+
+#pragma pack(pop)
 
 namespace REX::W32
 {

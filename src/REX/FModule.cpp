@@ -5,30 +5,75 @@
 #include "REX/LOG.h"
 #include "REX/W32/KERNEL32.h"
 
+namespace
+{
+	constexpr std::array SUPPORTED_OG_VERSIONS{
+		REL::Version{ 1, 10, 163, 0 }
+	};
+	constexpr std::array SUPPORTED_NG_VERSIONS{
+		REL::Version{ 1, 10, 980, 0 },
+		REL::Version{ 1, 10, 984, 0 }
+	};
+	constexpr std::array SUPPORTED_AE_VERSIONS{
+		REL::Version{ 1, 11, 137, 0 },
+		REL::Version{ 1, 11, 159, 0 },
+		REL::Version{ 1, 11, 169, 0 },
+		REL::Version{ 1, 11, 191, 0 },
+		REL::Version{ 1, 11, 221, 0 },
+		REL::Version{ 1, 11, 240, 0 }
+	};
+
+	template <std::size_t N>
+	[[nodiscard]] constexpr bool Contains(const std::array<REL::Version, N>& a_versions, const REL::Version& a_version) noexcept
+	{
+		return std::ranges::find(a_versions, a_version) != a_versions.end();
+	}
+
+	[[nodiscard]] constexpr std::optional<REX::FModule::Runtime> GetRuntimeForVersion(const REL::Version& a_version) noexcept
+	{
+		if (Contains(SUPPORTED_OG_VERSIONS, a_version)) {
+			return REX::FModule::Runtime::kOG;
+		}
+		if (Contains(SUPPORTED_NG_VERSIONS, a_version)) {
+			return REX::FModule::Runtime::kNG;
+		}
+		if (Contains(SUPPORTED_AE_VERSIONS, a_version)) {
+			return REX::FModule::Runtime::kAE;
+		}
+
+		return std::nullopt;
+	}
+
+	static_assert(GetRuntimeForVersion(REL::Version{ 1, 10, 163 }) == REX::FModule::Runtime::kOG);
+	static_assert(GetRuntimeForVersion(REL::Version{ 1, 10, 980 }) == REX::FModule::Runtime::kNG);
+	static_assert(GetRuntimeForVersion(REL::Version{ 1, 10, 984 }) == REX::FModule::Runtime::kNG);
+	static_assert(GetRuntimeForVersion(REL::Version{ 1, 11, 137 }) == REX::FModule::Runtime::kAE);
+	static_assert(GetRuntimeForVersion(REL::Version{ 1, 11, 240 }) == REX::FModule::Runtime::kAE);
+	static_assert(!GetRuntimeForVersion(REL::Version{ 1, 10, 162 }));
+	static_assert(!GetRuntimeForVersion(REL::Version{ 1, 10, 164 }));
+	static_assert(!GetRuntimeForVersion(REL::Version{ 1, 10, 985 }));
+	static_assert(!GetRuntimeForVersion(REL::Version{ 1, 11, 241 }));
+}
+
 namespace REX
 {
-	constexpr inline static REL::Version OG_LATEST_VERSION = { 1, 10, 163, 0 };
-	constexpr inline static REL::Version NG_LATEST_VERSION = { 1, 10, 984, 0 };
-
-	static REL::Version safe_verm{ 0, 0, 0, 0 };
-
 	[[nodiscard]] FModule::Runtime FModule::GetRuntimeIndex() noexcept
 	{
-		if (safe_verm.major() == 0)
-		{
+		static const auto runtime = []() {
 			const auto mod = REX::FModule::GetExecutingModule();
-			safe_verm = mod.GetFileVersion();
-		}
-	
-		if (safe_verm == OG_LATEST_VERSION)
-			return FModule::Runtime::kOG;
-		if ((safe_verm > OG_LATEST_VERSION) && (safe_verm <= NG_LATEST_VERSION))
-			return FModule::Runtime::kNG;
-		if (safe_verm > NG_LATEST_VERSION)
-			return FModule::Runtime::kAE;
+			const auto version = mod.GetFileVersion();
+			if (const auto result = GetRuntimeForVersion(version)) {
+				return *result;
+			}
 
-		// Default to AE
-		return FModule::Runtime::kAE;
+			REX::FAIL(
+				"Unsupported Fallout 4 runtime!\n"
+				"Game Version: {}",
+				version);
+			std::terminate();
+		}();
+
+		return runtime;
 	}
 
 	FModule FModule::GetCurrentModule()
@@ -58,7 +103,16 @@ namespace REX
 
 	REL::Version FModule::GetFileVersion() const noexcept
 	{
-		return *REL::GetFileVersion(GetFileName());
+		const auto filename = GetFileName();
+		if (const auto version = REL::GetFileVersion(filename)) {
+			return *version;
+		}
+
+		REX::FAIL(
+			"Failed to obtain module file version!\n"
+			"Module: {}",
+			filename);
+		std::terminate();
 	}
 
 	void* FModule::GetExportFunctionPointer(std::string_view a_function) const

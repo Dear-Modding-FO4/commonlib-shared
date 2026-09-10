@@ -6,52 +6,25 @@
 
 namespace REX
 {
-	// Non-owning standard engine view; the generator must outlive the view and its copies.
-	template <typename T>
-	class TRandomEngine
-	{
-	public:
-		using result_type = std::uint64_t;
-
-		explicit constexpr TRandomEngine(T& a_owner) noexcept :
-			m_owner(std::addressof(a_owner))
-		{}
-
-		static constexpr result_type min() noexcept { return std::numeric_limits<result_type>::min(); }
-		static constexpr result_type max() noexcept { return std::numeric_limits<result_type>::max(); }
-		result_type                  operator()() noexcept { return m_owner->GenerateEngineValue(); }
-
-	private:
-		T* m_owner;
-	};
-
 	template <typename T>
 		requires std::is_arithmetic_v<T>
 	class TRandom
 	{
 	public:
-		using engine_type = TRandomEngine<TRandom>;
+		using result_type = std::uint64_t;
 
 		TRandom();
 		TRandom(std::uint32_t a_seed);
 		TRandom(std::uint64_t a_seed);
 
-		static constexpr T min() { return std::numeric_limits<T>::min(); }
-		static constexpr T max() { return std::numeric_limits<T>::max(); }
+		static constexpr result_type min() noexcept { return std::numeric_limits<result_type>::min(); }
+		static constexpr result_type max() noexcept { return std::numeric_limits<result_type>::max(); }
+		result_type                  operator()() noexcept;
 
-		T Generate(T a_min = min(), T a_max = max());
-
-		// Generate uses typed bounds; this lvalue-only view supports standard random algorithms.
-		[[nodiscard]] engine_type GetEngine() & noexcept { return engine_type(*this); }
-		engine_type               GetEngine() && = delete;
+		T Generate(T a_min = std::numeric_limits<T>::min(), T a_max = std::numeric_limits<T>::max());
 
 	protected:
 		std::byte m_rng[32];
-
-	private:
-		friend engine_type;
-
-		std::uint64_t GenerateEngineValue() noexcept;
 	};
 
 	template <typename T>
@@ -59,27 +32,20 @@ namespace REX
 	class TRandomDistribution
 	{
 	public:
-		using engine_type = TRandomEngine<TRandomDistribution>;
+		using result_type = std::uint64_t;
 
 		TRandomDistribution() = delete;
 		TRandomDistribution(std::vector<std::uint32_t>& a_weights);
 		TRandomDistribution(std::uint32_t a_seed, std::vector<std::uint32_t>& a_weights);
 		TRandomDistribution(std::uint64_t a_seed, std::vector<std::uint32_t>& a_weights);
 
-		static constexpr T min() { return std::numeric_limits<T>::min(); }
-		static constexpr T max() { return std::numeric_limits<T>::max(); }
+		static constexpr result_type min() noexcept { return std::numeric_limits<result_type>::min(); }
+		static constexpr result_type max() noexcept { return std::numeric_limits<result_type>::max(); }
+		result_type                  operator()() noexcept;
 
 		T Generate();
 
-		// Generate uses the configured weights; this lvalue-only view exposes the same engine state.
-		[[nodiscard]] engine_type GetEngine() & noexcept { return engine_type(*this); }
-		engine_type               GetEngine() && = delete;
-
 	private:
-		friend engine_type;
-
-		std::uint64_t GenerateEngineValue() noexcept;
-
 		std::byte                     m_rng[32];
 		std::discrete_distribution<T> m_dist;
 	};

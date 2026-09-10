@@ -24,7 +24,7 @@
 			std::memcpy(&m_rng, &rng, 32);                                                                   \
 		}                                                                                                    \
 		template <>                                                                                          \
-		std::uint64_t TRandom<T>::GenerateEngineValue() noexcept                                             \
+		TRandom<T>::result_type TRandom<T>::operator()() noexcept                                            \
 		{                                                                                                    \
 			return (*reinterpret_cast<XoshiroCpp::Xoshiro256StarStar*>(m_rng))();                            \
 		}                                                                                                    \
@@ -58,7 +58,7 @@
 			std::memcpy(&m_rng, &rng, sizeof(m_rng));                                                              \
 		}                                                                                                          \
 		template <>                                                                                                \
-		std::uint64_t TRandomDistribution<T>::GenerateEngineValue() noexcept                                       \
+		TRandomDistribution<T>::result_type TRandomDistribution<T>::operator()() noexcept                          \
 		{                                                                                                          \
 			return (*reinterpret_cast<XoshiroCpp::Xoshiro256StarStar*>(m_rng))();                                  \
 		}                                                                                                          \
@@ -81,16 +81,16 @@ namespace REX
 	REX_DEFINE_RANDOM_DIST_FUNCTIONS(std::uint32_t);
 	REX_DEFINE_RANDOM_DIST_FUNCTIONS(std::uint64_t);
 
-	static_assert(std::uniform_random_bit_generator<RNG::F32::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::F64::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::I32::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::I64::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::U32::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::U64::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::I32D::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::I64D::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::U32D::engine_type>);
-	static_assert(std::uniform_random_bit_generator<RNG::U64D::engine_type>);
+	static_assert(std::uniform_random_bit_generator<RNG::F32>);
+	static_assert(std::uniform_random_bit_generator<RNG::F64>);
+	static_assert(std::uniform_random_bit_generator<RNG::I32>);
+	static_assert(std::uniform_random_bit_generator<RNG::I64>);
+	static_assert(std::uniform_random_bit_generator<RNG::U32>);
+	static_assert(std::uniform_random_bit_generator<RNG::U64>);
+	static_assert(std::uniform_random_bit_generator<RNG::I32D>);
+	static_assert(std::uniform_random_bit_generator<RNG::I64D>);
+	static_assert(std::uniform_random_bit_generator<RNG::U32D>);
+	static_assert(std::uniform_random_bit_generator<RNG::U64D>);
 }
 
 #	undef XOSHIROCPP_NODISCARD_CXX20

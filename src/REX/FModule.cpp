@@ -165,13 +165,15 @@ namespace REX
 
 	void* FModule::SetImportFunctionPointer(std::string_view a_function, std::string_view a_library, void* a_pointer) const
 	{
-		auto original = GetImportFunctionPointer(a_function, a_library);
-		if (original) {
-			REL::WriteSafeData(original, a_pointer);
-		} else {
+		const auto slot = GetImportFunctionPointer(a_function, a_library);
+		if (!slot) {
 			REX::ERROR("Failed to set {} ({})", a_function, a_library);
+			return nullptr;
 		}
 
+		// Callers chain to the previous import, not its slot
+		const auto original = *reinterpret_cast<void**>(slot);
+		REL::WriteSafeData(slot, a_pointer);
 		return original;
 	}
 
